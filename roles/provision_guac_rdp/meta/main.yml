@@ -1,0 +1,24 @@
+---
+
+dependencies: []
+
+galaxy_info:
+  role_name: guacamole_rdp
+  author: mboehm21
+  description: "Installs and configures Apache Guacamole and accompanying XRDP servers in Docker."
+  license: "license (BSD, MIT)"
+  min_ansible_version: 2.10
+  platforms:
+    - name: Ubuntu
+      versions:
+        - all
+  galaxy_tags:
+    - automation
+    - system
+    - web
+    - guacamole
+    - rdp
+    - ansible
+    - playbook
+    - ci
+    - cd
