@@ -1,0 +1,433 @@
+---
+
+- name: Check if operating system is supported
+  assert:
+    that:
+      - ansible_distribution == 'Ubuntu'
+    fail_msg: "{{ ansible_distribution }} is currently not tested."
+    success_msg: "{{ ansible_distribution }} is supported and tested."
+
+- name: Ensure prerequisites are installed (apt)
+  become: yes
+  ansible.builtin.apt:
+    name: "{{ apt_requirements }}"
+    state: present
+    update_cache: yes
+  environment:
+    http_proxy: "{{ web_proxy }}"
+    https_proxy: "{{ web_proxy }}"
+
+- name: Ensure docker-compose is installed (pip3)
+  become: yes
+  ansible.builtin.pip:
+    name: docker-compose
+    state: present
+    executable: pip3
+    extra_args: "--proxy={{ web_proxy }}"
+
+- name: Ensure the mysql-group is present
+  become: yes
+  ansible.builtin.group:
+    name: "{{ docker_mysql_user_name }}"
+    state: present
+    gid: "{{ docker_mysql_user_id }}"
+
+- name: Ensure the mysql-user is present
+  become: yes
+  ansible.builtin.user:
+    name: "{{ docker_mysql_user_name }}"
+    state: present
+    uid: "{{ docker_mysql_user_id }}"
+    group: "{{ docker_mysql_user_name }}"
+
+- name: Ensure the project-directory is present
+  become: yes
+  ansible.builtin.file:
+    path: "{{ project_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0750
+
+- name: Ensure the directory for database-persistence is present
+  become: yes
+  ansible.builtin.file:
+    path: "{{ project_dir }}/mysql_data/"
+    state: directory
+    owner: "{{ docker_mysql_user_name }}"
+    group: "{{ docker_mysql_user_name }}"
+    mode: 0750
+  when: docker_mysql_persistence
+
+- name: Ensure docker-entrypoint.sh for terminalservers is deployed
+  become: yes
+  ansible.builtin.copy:
+    src: docker-entrypoint.sh
+    dest: "{{ project_dir }}/docker-entrypoint.sh"
+    owner: root
+    group: root
+    mode: 0750
+
+- name: Ensure initdb.sql for Guacamole is deployed
+  become: yes
+  ansible.builtin.copy:
+    src: initdb.sql
+    dest: "{{ project_dir }}/initdb.sql"
+    owner: "{{ docker_mysql_user_name }}"
+    group: "{{ docker_mysql_user_name }}"
+    mode: 0750
+
+- name: Ensure docker-compose.yml is deployed
+  become: yes
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ project_dir }}/docker-compose.yml"
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Ensure users.list is deployed
+  become: yes
+  ansible.builtin.template:
+    src: templates/users.list.j2
+    dest: "{{ project_dir }}/users.list"
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Ensure the docker-daemon is running and active at startup
+  become: yes
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Ensure the defined containers are started
+  become: yes
+  community.general.docker_compose:
+    project_src: "{{ project_dir }}"
+    state: present
+  environment:
+    COMPOSE_HTTP_TIMEOUT: 300
+
+- name: Wait for Guacamole service to become available
+  ansible.builtin.uri:
+    url: "http://{{ inventory_hostname }}:{{ docker_guacamole_exposed_port }}/guacamole/"
+    status_code: 200
+  register: connection_test
+  until: connection_test.status == 200
+  retries: 30
+  delay: 1
+
+- block:
+    - name: Get a Guacamole auth-token (trying default credentials)
+      ansible.builtin.uri:
+        url: "http://{{ inventory_hostname }}:{{ docker_guacamole_exposed_port }}/guacamole/api/tokens"
+        method: POST
+        body_format: form-urlencoded
+        body:
+          username: guacadmin
+          password: guacadmin
+        use_proxy: no
+      register: guacamole_auth_details
+      until: guacamole_auth_details.status == 200 or guacamole_auth_details.status == 403
+      retries: 15
+      delay: 2
+      changed_when: no
+      delegate_to: localhost
+
+    - name: Ensure the password for guacadmin is set according to configuration
+      ansible.builtin.uri:
+        url: "http://{{ inventory_hostname }}:{{ docker_guacamole_exposed_port }}/guacamole/api/session/data/{{ guacamole_auth_details.json.dataSource }}/users/guacadmin/password?token={{ guacamole_auth_details.json.authToken }}"
+        method: PUT
+        body_format: json
+        body:
+          oldPassword: guacadmin
+          newPassword: "{{ guacadmin_password }}"
+        status_code:
+          - 200
+          - 204
+      changed_when: yes
+      delegate_to: localhost
+
+  rescue:
+    - name: Get a Guacamole auth-token (trying custom credentials)
+      ansible.builtin.uri:
+        url: "http://{{ inventory_hostname }}:{{ docker_guacamole_exposed_port }}/guacamole/api/tokens"
+        method: POST
+        body_format: form-urlencoded
+        body:
+          username: guacadmin
+          password: "{{ guacadmin_password }}"
+        use_proxy: no
+      register: guacamole_auth_details
+      until: guacamole_auth_details.status == 200 or guacamole_auth_details.status == 403
+      retries: 15
+      delay: 2
+      changed_when: no
+      delegate_to: localhost
+
+- name: Ensure the users are present in Guacamole
+  ansible.builtin.uri:
+    url: "http://{{ inventory_hostname }}:{{ docker_guacamole_exposed_port }}/guacamole/api/session/data/{{ guacamole_auth_details.json.dataSource }}/users?token={{ guacamole_auth_details.json.authToken }}"
+    method: POST
+    body_format: json
+    body:
+      username: "{{ item.username }}"
+      password: "{{ item.password }}"
+      attributes:
+        disabled: ""
+        expired: ""
+        access-window-start: ""
+        access-window-end: ""
+        valid-from: ""
+        valid-until: ""
+        timezone: ""
+        guac-full-name: ""
+    use_proxy: no
+    status_code:
+      - 200
+      - 400
+  loop: "{{ ts_users }}"
+  register: guac_user_created
+  changed_when: guac_user_created.status == 200
+  delegate_to: localhost
+
+- name: Ensure every user can change his or her password in Guacamole (always shows up as changed)
+  ansible.builtin.uri:
+    url: "http://{{ inventory_hostname }}:{{ docker_guacamole_exposed_port }}/guacamole/api/session/data/{{ guacamole_auth_details.json.dataSource }}/users/{{ item.username }}/permissions?token={{ guacamole_auth_details.json.authToken }}"
+    method: PATCH
+    body_format: json
+    body:
+      - op: add
+        path: "/userPermissions/{{ item.username }}"
+        value: UPDATE
+    use_proxy: no
+    status_code:
+      - 204
+  loop: "{{ ts_users }}"
+  changed_when: yes
+  delegate_to: localhost
+
+- name: Ensure the administrators have full rights in Guacamole (always shows up as changed)
+  ansible.builtin.uri:
+    url: "http://{{ inventory_hostname }}:{{ docker_guacamole_exposed_port }}/guacamole/api/session/data/{{ guacamole_auth_details.json.dataSource }}/users/{{ item.username }}/permissions?token={{ guacamole_auth_details.json.authToken }}"
+    method: PATCH
+    body_format: json
+    body:
+      - op: add
+        path: /systemPermissions
+        value: ADMINISTER
+      - op: add
+        path: /systemPermissions
+        value: CREATE_USER
+      - op: add
+        path: /systemPermissions
+        value: CREATE_USER_GROUP
+      - op: add
+        path: /systemPermissions
+        value: CREATE_CONNECTION
+      - op: add
+        path: /systemPermissions
+        value: CREATE_CONNECTION_GROUP
+      - op: add
+        path: /systemPermissions
+        value: CREATE_SHARING_PROFILE
+    use_proxy: no
+    status_code:
+      - 204
+  loop: "{{ ts_users }}"
+  when: item.is_admin
+  changed_when: yes
+  delegate_to: localhost
+
+- name: Ensure the connections to the terminalservers are present in Guacamole (RDP)
+  ansible.builtin.uri:
+    url: "http://{{ inventory_hostname }}:{{ docker_guacamole_exposed_port }}/guacamole/api/session/data/{{ guacamole_auth_details.json.dataSource }}/connections?token={{ guacamole_auth_details.json.authToken }}"
+    method: POST
+    body_format: json
+    body:
+      parentIdentifier: ROOT
+      name: "{{ item }}_rdp"
+      protocol: rdp
+      parameters:
+        port: 3389
+        read-only: ""
+        swap-red-blue: ""
+        cursor: ""
+        color-depth: ""
+        clipboard-encoding: ""
+        disable-copy: ""
+        disable-paste: ""
+        dest-port: ""
+        recording-exclude-output: ""
+        recording-exclude-mouse: ""
+        recording-include-keys: ""
+        create-recording-path: ""
+        enable-sftp: ""
+        sftp-port: ""
+        sftp-server-alive-interval: ""
+        sftp-disable-download: ""
+        sftp-disable-upload: ""
+        enable-audio: ""
+        wol-send-packet: ""
+        wol-wait-time: ""
+        security: tls
+        disable-auth: ""
+        ignore-cert: true
+        gateway-port: ""
+        server-layout: ""
+        timezone: ""
+        console: ""
+        width: ""
+        height: ""
+        dpi: ""
+        resize-method: reconnect
+        console-audio: ""
+        disable-audio: ""
+        enable-audio-input: ""
+        enable-printing: ""
+        enable-drive: ""
+        disable-download: ""
+        disable-upload: ""
+        create-drive-path: ""
+        enable-wallpaper: ""
+        enable-theming: ""
+        enable-font-smoothing: ""
+        enable-full-window-drag: ""
+        enable-desktop-composition: ""
+        enable-menu-animations: ""
+        disable-bitmap-caching: ""
+        disable-offscreen-caching: ""
+        disable-glyph-caching: ""
+        preconnection-id: ""
+        hostname: "{{ item }}"
+        username: "${GUAC_USERNAME}"
+        password: "${GUAC_PASSWORD}"
+      attributes:
+        max-connections: ""
+        max-connections-per-user: ""
+        weight: ""
+        failover-only: ""
+        guacd-port: ""
+        guacd-encryption: ""
+    status_code:
+      - 200
+      - 400
+  register: guac_rdp_created
+  changed_when: guac_rdp_created.status == 200
+  loop: "{{ terminalserver_containers }}"
+  delegate_to: localhost
+
+- name: Ensure the connections to the terminalservers are present in Guacamole (SSH)
+  ansible.builtin.uri:
+    url: "http://{{ inventory_hostname }}:{{ docker_guacamole_exposed_port }}/guacamole/api/session/data/{{ guacamole_auth_details.json.dataSource }}/connections?token={{ guacamole_auth_details.json.authToken }}"
+    method: POST
+    body_format: json
+    body:
+      parentIdentifier: ROOT
+      name: "{{ item }}_ssh"
+      protocol: ssh
+      parameters:
+        port: 22
+        read-only: ""
+        swap-red-blue: ""
+        cursor: ""
+        color-depth: ""
+        clipboard-encoding: ""
+        disable-copy: ""
+        disable-paste: ""
+        dest-port: ""
+        recording-exclude-output: ""
+        recording-exclude-mouse: ""
+        recording-include-keys: ""
+        create-recording-path: ""
+        enable-sftp: ""
+        sftp-port: ""
+        sftp-server-alive-interval: ""
+        sftp-disable-download: ""
+        sftp-disable-upload: ""
+        enable-audio: ""
+        wol-send-packet: ""
+        wol-wait-time: ""
+        color-scheme: ""
+        font-size: ""
+        scrollback: ""
+        timezone: ""
+        server-alive-interval: ""
+        backspace: ""
+        terminal-type: ""
+        create-typescript-path: ""
+        hostname: "{{ item }}"
+        username: "${GUAC_USERNAME}"
+        password: "${GUAC_PASSWORD}"
+      attributes:
+        max-connections: ""
+        max-connections-per-user: ""
+        weight: ""
+        failover-only: ""
+        guacd-port: ""
+        guacd-encryption: ""
+        guacd-hostname: ""
+    status_code:
+      - 200
+      - 400
+  register: guac_ssh_created
+  changed_when: guac_ssh_created.status == 200
+  loop: "{{ terminalserver_containers }}"
+  delegate_to: localhost
+
+- name: Get information about all terminalserver-connections in Guacamole
+  ansible.builtin.uri:
+    url: "http://{{ inventory_hostname }}:{{ docker_guacamole_exposed_port }}/guacamole/api/session/data/{{ guacamole_auth_details.json.dataSource }}/connections?token={{ guacamole_auth_details.json.authToken }}"
+    method: GET
+    status_code:
+      - 200
+  register: guacamole_connections
+  changed_when: no
+  delegate_to: localhost
+
+- name: Ensure all users have read-access to all provisioned terminalservers (always shows up as changed)
+  ansible.builtin.uri:
+    url: "http://{{ inventory_hostname }}:{{ docker_guacamole_exposed_port }}/guacamole/api/session/data/{{ guacamole_auth_details.json.dataSource }}/users/{{ item.username }}/permissions?token={{ guacamole_auth_details.json.authToken }}"
+    method: PATCH
+    body_format: json
+    body: "{{ lookup('template', 'add_connections.j2') | from_yaml }}"
+    use_proxy: no
+    status_code:
+      - 204
+  loop: "{{ ts_users }}"
+  when: not item.is_admin
+  changed_when: yes
+  delegate_to: localhost
+
+- name: Logout from Guacamole
+  ansible.builtin.uri:
+    url: "http://{{ inventory_hostname }}:{{ docker_guacamole_exposed_port }}/guacamole/api/tokens/{{ guacamole_auth_details.json.authToken }}"
+    method: DELETE
+    use_proxy: no
+    status_code:
+      - 204
+  changed_when: no
+  delegate_to: localhost
+
+- name: Ensure the defined containers are absent
+  become: yes
+  community.general.docker_compose:
+    project_src: "{{ project_dir }}"
+    remove_volumes: yes
+    state: absent
+  tags:
+    - never
+    - teardown-docker
+    - teardown-full
+
+- name: Ensure the defined project-directory is absent
+  become: yes
+  ansible.builtin.file:
+    path: "{{ project_dir }}"
+    state: absent
+  tags:
+    - never
+    - teardown-docker
+    - teardown-full

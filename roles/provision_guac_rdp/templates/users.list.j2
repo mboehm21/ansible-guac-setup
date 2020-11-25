@@ -1,0 +1,4 @@
+{% for item in ts_users %}
+{{ item.uid }} {{ item.username }} {{ item.password | password_hash('sha256', item.username) }}{% if item.is_admin %} sudo{% endif %}
+
+{% endfor %}

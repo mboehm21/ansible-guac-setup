@@ -1,0 +1,53 @@
+---
+
+web_proxy: ""
+
+apt_requirements:
+  - docker.io
+  - python3
+  - python3-pip
+
+project_dir: /var/demo
+guacadmin_password: changeme
+
+docker_network_name: guacamole_network
+docker_network_cidr: 10.40.40.0/24
+
+docker_mysql_version: 8.0.21
+docker_guacamole_version: 1.2.0
+docker_guacd_version: 1.2.0
+docker_xrdp_version: latest
+
+docker_mysql_user_name: demo
+docker_mysql_user_id: 15000
+docker_mysql_persistence: no
+
+mysql_root_password: sehrgeheim
+mysql_password: auchsehrgeheim
+
+docker_guacamole_exposed_port: 8080
+
+terminalserver_containers:
+  - ts-desktop1
+  - ts-desktop2
+
+ts_users:
+  - username: guacadmin
+    password: "{{ guacadmin_password }}"
+    uid: 10000
+    is_admin: yes
+
+  - username: alice
+    password: alice
+    uid: 10001
+    is_admin: yes
+
+  - username: bob
+    password: bob
+    uid: 10002
+    is_admin: no
+
+  - username: udo
+    password: udo
+    uid: 10003
+    is_admin: no

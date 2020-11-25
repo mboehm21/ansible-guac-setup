@@ -1,0 +1,77 @@
+---
+
+name: CI
+'on':
+  pull_request:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "0 3 * * 0"
+
+defaults:
+  run:
+    working-directory: 'mboehm21.ansible-guac-setup'
+
+jobs:
+
+  lint:
+    name: Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+        with:
+          path: 'mboehm21.ansible-guac-setup'
+
+      - name: Set up Python 3.
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install test dependencies.
+        run: pip3 install yamllint ansible-lint
+
+      - name: Lint code.
+        run: |
+          yamllint *.yml
+          ansible-lint *.yml
+          yamllint roles/*
+          ansible-lint roles/*
+
+  ansible:
+    name: Ansible
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os:
+          - ubuntu-18.04
+          - ubuntu-20.04
+
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+        with:
+          path: 'mboehm21.ansible-guac-setup'
+
+      - name: Set up Python 3.
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install test dependencies.
+        run: |
+          sudo apt-get install -y python3-setuptools
+          pip3 install ansible
+
+      - name: Force GitHub Actions' docker daemon to use vfs.
+        run: |
+          sudo systemctl stop docker
+          echo '{"cgroup-parent":"/actions_job","storage-driver":"vfs"}' | sudo tee /etc/docker/daemon.json
+          sudo systemctl start docker
+
+      - name: Run playbook.
+        run: |
+          ansible-playbook ci.yml
+          ansible-playbook ci.yml --tags teardown-full

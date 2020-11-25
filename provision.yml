@@ -1,0 +1,6 @@
+---
+
+- name: Setup Guacamole
+  hosts: guacamole_hosts
+  roles:
+    - role: provision_guac_rdp

@@ -1,0 +1,5 @@
+{% for id in guacamole_connections.json | list %} 
+- op: add
+  path: /connectionPermissions/{{ id }}
+  value: READ
+{% endfor %}

@@ -1,0 +1,14 @@
+---
+
+- name: Setup Guacamole
+  hosts: localhost
+  vars:
+    apt_requirements:
+      - python3
+      - python3-pip
+
+    terminalserver_containers:
+      - ts-desktop1
+
+  roles:
+    - role: provision_guac_rdp
