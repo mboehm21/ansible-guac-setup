@@ -2,10 +2,10 @@
 
 - name: Check if operating system is supported
   assert:
-    that:
-      - ansible_distribution == 'Ubuntu'
-      - ansible_distribution_version == '18.04' or ansible_distribution_version == '20.04'
-    fail_msg: "{{ ansible_distribution }} {{ ansible_distribution_version }} is currently not tested."
+    that: |
+      (ansible_distribution == 'Ubuntu' and (ansible_distribution_version == '18.04' or ansible_distribution_vresion == '20.04')) or 
+      (ansible_distribution == 'CentOS' and (ansible_distribution_major_version == 7 or ansible_distribution_major_version == 8))
+    fail_msg: "{{ ansible_distribution }} {{ ansible_distribution_version }} is unsupported."
     success_msg: "{{ ansible_distribution }} {{ ansible_distribution_version }} is supported and tested."
     quiet: yes
 
@@ -18,6 +18,18 @@
   environment:
     http_proxy: "{{ web_proxy }}"
     https_proxy: "{{ web_proxy }}"
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Ensure prerequisites are installed (yum)
+  become: yes
+  ansible.builtin.yum:
+    name: "{{ requirements[ansible_distribution] }}"
+    state: present
+    update_cache: yes
+  environment:
+    http_proxy: "{{ web_proxy }}"
+    https_proxy: "{{ web_proxy }}"
+  when: ansible_distribution == 'CentOS'
 
 - name: Ensure docker-compose is installed (pip3)
   become: yes
