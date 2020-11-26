@@ -10,7 +10,7 @@ This project demonstrates some key-features of [Ansible](https://www.ansible.com
 - [Linux user- and file-management](https://github.com/mboehm21/ansible-guac-setup/tasks/main.yml#L28-L60)
 - [Copying of files](https://github.com/mboehm21/ansible-guac-setup/tasks/main.yml#L62-L78)
 - [Templating](https://github.com/mboehm21/ansible-guac-setup/tasks/main.yml#L80-L96)
-- [Managegement of services](https://github.com/mboehm21/ansible-guac-setup/tasks/main.yml#L98-L103)
+- [Management of services](https://github.com/mboehm21/ansible-guac-setup/tasks/main.yml#L98-L103)
 - [Handling of docker-compose](https://github.com/mboehm21/ansible-guac-setup/tasks/main.yml#L105-L111)
 - [Waiting for an event](https://github.com/mboehm21/ansible-guac-setup/tasks/main.yml#L103-L120)
 - [Error-handling (rescue-block)](https://github.com/mboehm21/ansible-guac-setup/tasks/main.yml#L122-L168)
