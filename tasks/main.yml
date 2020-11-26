@@ -3,8 +3,8 @@
 - name: Check if operating system is supported
   assert:
     that: |
-     (ansible_distribution == 'Ubuntu' and (ansible_distribution_version == '18.04' or ansible_distribution_vresion == '20.04')) or
-      (ansible_distribution == 'CentOS' and (ansible_distribution_major_version == 7 or ansible_distribution_major_version == 8))
+     (ansible_distribution == 'Ubuntu' and (ansible_distribution_version == '18.04' or ansible_distribution_version == '20.04')) or
+     (ansible_distribution == 'CentOS' and (ansible_distribution_major_version == '7' or ansible_distribution_major_version == '8'))
     fail_msg: "{{ ansible_distribution }} {{ ansible_distribution_version }} is unsupported."
     success_msg: "{{ ansible_distribution }} {{ ansible_distribution_version }} is supported and tested."
     quiet: yes
@@ -123,6 +123,8 @@
     state: present
   environment:
     COMPOSE_HTTP_TIMEOUT: 300
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
 
 - name: Wait for Guacamole service to become available
   ansible.builtin.uri:
