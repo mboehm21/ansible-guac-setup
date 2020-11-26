@@ -7,11 +7,12 @@ galaxy_info:
   author: mboehm21
   description: "Installs and configures Apache Guacamole and accompanying XRDP servers in Docker."
   license: "license (BSD, MIT)"
-  min_ansible_version: 2.10
+  min_ansible_version: "2.10"
   platforms:
     - name: Ubuntu
       versions:
-        - all
+        - "18.04"
+        - "20.04"
   galaxy_tags:
     - automation
     - system
