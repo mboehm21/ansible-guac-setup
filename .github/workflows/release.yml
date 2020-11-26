@@ -16,11 +16,6 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the codebase.
-        uses: actions/checkout@v2
-        with:
-          path: 'geerlingguy.awx'
-
       - name: Set up Python 3.
         uses: actions/setup-python@v2
         with:
