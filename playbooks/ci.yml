@@ -4,6 +4,12 @@
   hosts: guacamole_hosts
 
   vars:
+    requirements:
+      Ubuntu:
+      # - docker.io Use GitHub's pre-installed package
+        - python3
+        - python3-pip
+
     terminalserver_containers:
       - ts-desktop1
 
