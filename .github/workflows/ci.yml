@@ -33,11 +33,9 @@ jobs:
         run: pip3 install yamllint ansible-lint
 
       - name: Lint code.
-        run: |
-          yamllint *.yml
-          ansible-lint *.yml
-          yamllint roles/*
-          ansible-lint roles/*
+       run: |
+         yamllint .
+         ansible-lint
 
   ansible:
     name: Ansible
@@ -73,5 +71,5 @@ jobs:
 
       - name: Run playbook.
         run: |
-          ansible-playbook ci.yml
-          ansible-playbook ci.yml --tags teardown-full
+          ansible-playbook playbooks/ci.yml
+          ansible-playbook playbooks/ci.yml --tags teardown-full
