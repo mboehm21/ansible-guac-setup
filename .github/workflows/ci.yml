@@ -71,5 +71,6 @@ jobs:
 
       - name: Run playbook.
         run: |
-          ansible-playbook playbooks/ci.yml
-          ansible-playbook playbooks/ci.yml --tags teardown-full
+          cd playbooks
+          ansible-playbook ci.yml
+          ansible-playbook ci.yml --tags teardown-full
