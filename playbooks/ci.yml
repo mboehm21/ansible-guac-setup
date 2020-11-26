@@ -2,11 +2,8 @@
 
 - name: Setup Guacamole
   hosts: guacamole_hosts
-  vars:
-    apt_requirements:
-      - python3
-      - python3-pip
 
+  vars:
     terminalserver_containers:
       - ts-desktop1
 

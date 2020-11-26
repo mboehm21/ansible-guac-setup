@@ -3,7 +3,7 @@
 [![CI](https://github.com/mboehm21/ansible-guac-setup/workflows/CI/badge.svg?event=push)](https://github.com/mboehm21/ansible-guac-setup/actions?query=workflow%3ACI)
 
 ## Purpose
-This project demonstrates some key-features of [Ansible](https://www.ansible.com/) to provision a demo-application (clientless remote desktop gateway [Apache Guacamole](https://guacamole.apache.org/)) on a [Docker](https://www.docker.com/)-host.
+This role demonstrates some key-features of [Ansible](https://www.ansible.com/) to provision a demo-application (clientless remote desktop gateway [Apache Guacamole](https://guacamole.apache.org/)) on a [Docker](https://www.docker.com/)-host.
 ## Showcased features
 - [Assertion of conditions](https://github.com/mboehm21/ansible-guac-setup/tasks/main.yml#L3-L8)
 - [Package-management (apt and pip)](https://github.com/mboehm21/ansible-guac-setup/tasks/main.yml#L10-L26)
@@ -22,8 +22,8 @@ This project demonstrates some key-features of [Ansible](https://www.ansible.com
 - Ensure Ansible's public-key is present at the Docker-server and the remote-user has sudo-permissions
 - Test the access using `ansible -b -m ping guacamole_hosts`
 ## Usage
-- Overwrite the [default](https://github.com/mboehm21/ansible-guac-setup/defaults/main.yml)-settings in [provision.yml](https://github.com/mboehm21/ansible-guac-setup/provision.yml) if needed
-- Run the playbook (step by step for demonstration): `ansible-playbook --step provision.yml`
+- Overwrite the [default](https://github.com/mboehm21/ansible-guac-setup/defaults/main.yml)-settings in [provision.yml](https://github.com/mboehm21/ansible-guac-setup/playbooks/provision.yml) if needed
+- Run the playbook (step by step for demonstration): `cd playbooks && ansible-playbook --step provision.yml`
 ## Tags
 | Tag             | Action                                                                   |
 |:---------------:|--------------------------------------------------------------------------|

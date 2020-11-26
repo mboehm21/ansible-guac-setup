@@ -2,10 +2,11 @@
 
 web_proxy: ""
 
-apt_requirements:
-  - docker.io
-  - python3
-  - python3-pip
+requirements:
+  Ubuntu:
+    - docker
+    - python3
+    - python3-pip
 
 project_dir: /var/demo
 guacadmin_password: changeme

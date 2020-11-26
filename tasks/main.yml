@@ -4,13 +4,15 @@
   assert:
     that:
       - ansible_distribution == 'Ubuntu'
-    fail_msg: "{{ ansible_distribution }} is currently not tested."
-    success_msg: "{{ ansible_distribution }} is supported and tested."
+      - ansible_distribution_version == '18.04' or ansible_distribution_version == '20.04'
+    fail_msg: "{{ ansible_distribution }} {{ ansible_distribution_version }} is currently not tested."
+    success_msg: "{{ ansible_distribution }} {{ ansible_distribution_version }} is supported and tested."
+    quiet: yes
 
 - name: Ensure prerequisites are installed (apt)
   become: yes
   ansible.builtin.apt:
-    name: "{{ apt_requirements }}"
+    name: "{{ requirements[ansible_distribution] }}"
     state: present
     update_cache: yes
   environment:
