@@ -1,7 +1,7 @@
 ---
 
 - name: Setup Guacamole
-  hosts: localhost
+  hosts: guacamole_hosts
   vars:
     apt_requirements:
       - python3
@@ -11,4 +11,4 @@
       - ts-desktop1
 
   roles:
-    - role: provision_guac_rdp
+    - role: mboehm21.guacamole_rdp

@@ -3,4 +3,4 @@
 - name: Setup Guacamole
   hosts: guacamole_hosts
   roles:
-    - role: provision_guac_rdp
+    - role: mboehm21.guacamole_rdp

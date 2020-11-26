@@ -8,15 +8,15 @@ This project demonstrates some key-features of [Ansible](https://www.ansible.com
 
 TODO: FIX LINE NUMBERS
 
-- [Assertion of conditions](/roles/provision_guac_rdp/tasks/main.yml#L3-L8)
-- [Package-management (apt and pip)](/roles/provision_guac_rdp/tasks/main.yml#L3-L16)
-- [Linux user- and file-management](/roles/provision_guac_rdp/tasks/main.yml#L18-L59)
-- [Copying of files](/roles/provision_guac_rdp/tasks/main.yml#L61-L68)
-- [Templating](/roles/provision_guac_rdp/tasks/main.yml#L70-L86)
-- [Handling of docker-compose](/roles/provision_guac_rdp/tasks/main.yml#L88-L92)
-- [Waiting for an event](/roles/provision_guac_rdp/tasks/main.yml#L94-L101)
-- [Error-handling (rescue-block)](/roles/provision_guac_rdp/tasks/main.yml#L103-L149)
-- [Working with APIs](/roles/provision_guac_rdp/tasks/main.yml#L103-L393)
+- [Assertion of conditions](/tasks/main.yml#L3-L8)
+- [Package-management (apt and pip)](/tasks/main.yml#L3-L16)
+- [Linux user- and file-management](/tasks/main.yml#L18-L59)
+- [Copying of files](/tasks/main.yml#L61-L68)
+- [Templating](/tasks/main.yml#L70-L86)
+- [Handling of docker-compose](/tasks/main.yml#L88-L92)
+- [Waiting for an event](/tasks/main.yml#L94-L101)
+- [Error-handling (rescue-block)](/tasks/main.yml#L103-L149)
+- [Working with APIs](/tasks/main.yml#L103-L393)
 ## Prerequisites
 - Install Ansible on your controller (`pip3 install ansible`)
 - Install linters on your controller (`pip3 install yamllint ansible-lint`, optional)
@@ -24,7 +24,7 @@ TODO: FIX LINE NUMBERS
 - Ensure Ansible's public-key is present at the Docker-server and the remote-user has sudo-permissions
 - Test the access using `ansible -b -m ping guacamole_hosts`
 ## Usage
-- Overwrite the [default](/roles/provision_guac_rdp/defaults/main.yml)-settings in [provision.yml](/provision.yml) if needed
+- Overwrite the [default](/defaults/main.yml)-settings in [provision.yml](/provision.yml) if needed
 - Run the playbook (step by step for demonstration): `ansible-playbook --step provision.yml`
 ## Tags
 | Tag             | Action                                                                   |
