@@ -8,7 +8,7 @@ name: Release
 
 defaults:
   run:
-    working-directory: 'mboehm21.ansible-guac-setup'
+    working-directory: 'mboehm21.guacamole_rdp'
 
 jobs:
 
@@ -19,7 +19,7 @@ jobs:
       - name: Check out the codebase.
         uses: actions/checkout@v2
         with:
-          path: 'geerlingguy.awx'
+          path: 'mboehm21.guacamole_rdp'
 
       - name: Set up Python 3.
         uses: actions/setup-python@v2
