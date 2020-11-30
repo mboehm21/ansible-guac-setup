@@ -31,6 +31,16 @@ This role demonstrates some key-features of [Ansible](https://www.ansible.com/) 
 | `teardown`      | Destroy Docker-containers and -volumes                                   |
 | `teardown-full` | Destroy Docker-containers, volumes and the created file-struture         |
 
+## Docker-images in use
+| Image                                                                         | Description                                                              |
+|:-----------------------------------------------------------------------------:|--------------------------------------------------------------------------|
+| [guacamole/guacamole](https://hub.docker.com/r/guacamole/guacamole)           | Clientless remote desktop gateway frontend                               |
+| [guacamole/guacd](https://hub.docker.com/r/guacamole/guacd)                   | Clientless remote desktop gateway backend                                |
+| [mysql](https://hub.docker.com/_/mysql)                                       | Relational database for Guacamole                                        |
+| [danielguerra/ubuntu-xrdp](https://hub.docker.com/r/danielguerra/ubuntu-xrdp) | Terminalserver                                                           |
+
+Versions / tags can be set using configuration-variables (see [default](https://github.com/mboehm21/ansible-guac-setup/blob/main/defaults/main.yml)-settings).
+
 ## Best Practices
 Before using this in production some changes should be made to the setup:
 - Use features like [Ansible Vault](https://docs.ansible.com/ansible/latest/user_guide/vault.html) to encrypt sensitive variables
