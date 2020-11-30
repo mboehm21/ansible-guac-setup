@@ -5,24 +5,24 @@
 ## Purpose
 This role demonstrates some key-features of [Ansible](https://www.ansible.com/) to provision a demo-application (clientless remote desktop gateway [Apache Guacamole](https://guacamole.apache.org/)) on a [Docker](https://www.docker.com/)-host.
 ## Showcased features
-- [Assertion of conditions](https://github.com/mboehm21/ansible-guac-setup/tasks/main.yml#L3-L8)
-- [Package-management (apt and pip)](https://github.com/mboehm21/ansible-guac-setup/tasks/main.yml#L10-L26)
-- [Linux user- and file-management](https://github.com/mboehm21/ansible-guac-setup/tasks/main.yml#L28-L60)
-- [Copying of files](https://github.com/mboehm21/ansible-guac-setup/tasks/main.yml#L62-L78)
-- [Templating](https://github.com/mboehm21/ansible-guac-setup/tasks/main.yml#L80-L96)
-- [Management of services](https://github.com/mboehm21/ansible-guac-setup/tasks/main.yml#L98-L103)
-- [Handling of docker-compose](https://github.com/mboehm21/ansible-guac-setup/tasks/main.yml#L105-L111)
-- [Waiting for an event](https://github.com/mboehm21/ansible-guac-setup/tasks/main.yml#L103-L120)
-- [Error-handling (rescue-block)](https://github.com/mboehm21/ansible-guac-setup/tasks/main.yml#L122-L168)
-- [Working with APIs](https://github.com/mboehm21/ansible-guac-setup/tasks/main.yml#L122-L412)
+- [Assertion of conditions](https://github.com/mboehm21/ansible-guac-setup/blob/main/tasks/main.yml#L3-L10)
+- [Package-management (apt, yum and pip)](https://github.com/mboehm21/ansible-guac-setup/blob/main/tasks/main.yml#L12-L40)
+- [Linux user- and file-management](https://github.com/mboehm21/ansible-guac-setup/blob/main/tasks/main.yml#L42-L74)
+- [Copying of files](https://github.com/mboehm21/ansible-guac-setup/blob/main/tasks/main.yml#L76-L92)
+- [Templating](https://github.com/mboehm21/ansible-guac-setup/blob/main/tasks/main.yml#L94-L110)
+- [Management of services](https://github.com/mboehm21/ansible-guac-setup/blob/main/tasks/main.yml#L112-L117)
+- [Handling of docker-compose](https://github.com/mboehm21/ansible-guac-setup/blob/main/tasks/main.yml#L119-L127)
+- [Waiting for an event](https://github.com/mboehm21/ansible-guac-setup/blob/main/tasks/main.yml#L129-L136)
+- [Error-handling (rescue-block)](https://github.com/mboehm21/ansible-guac-setup/blob/main/tasks/main.yml#L138-L184)
+- [Working with APIs](https://github.com/mboehm21/ansible-guac-setup/blob/main/tasks/main.yml#L186-L428)
 ## Prerequisites
 - Install Ansible on your controller (`pip3 install ansible`)
 - Install linters on your controller (`pip3 install yamllint ansible-lint`, optional)
-- Add your Docker-server to the group `guacamole_hosts` in the [hosts](https://github.com/mboehm21/ansible-guac-setup/playbooks/hosts)-file and remove `localhost`
+- Add your Docker-server to the group `guacamole_hosts` in the [hosts](https://github.com/mboehm21/ansible-guac-setup/blob/main/playbooks/hosts)-file and remove `localhost`
 - Ensure Ansible's public-key is present at the Docker-server and the remote-user has sudo-permissions
 - Test the access using `ansible -b -m ping guacamole_hosts`
 ## Usage
-- Overwrite the [default](https://github.com/mboehm21/ansible-guac-setup/defaults/main.yml)-settings in [provision.yml](https://github.com/mboehm21/ansible-guac-setup/playbooks/provision.yml) if needed
+- Overwrite the [default](https://github.com/mboehm21/ansible-guac-setup/blob/main/defaults/main.yml)-settings in [provision.yml](https://github.com/mboehm21/ansible-guac-setup/blob/main/playbooks/provision.yml) if needed
 - Run the playbook (step by step for demonstration): `cd playbooks && ansible-playbook --step provision.yml`
 ## Tags
 | Tag             | Action                                                                   |
