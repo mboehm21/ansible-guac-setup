@@ -61,6 +61,7 @@ jobs:
       - name: Install test dependencies.
         run: |
           sudo apt-get install -y python3-setuptools
+          pip3 install --upgrade pip
           pip3 install ansible
 
       - name: Force GitHub Actions' docker daemon to use vfs.
