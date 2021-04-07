@@ -1,6 +1,6 @@
 # ansible-guac-setup
 
-[![CI](https://github.com/mboehm21/ansible-guac-setup/workflows/CI/badge.svg?event=push)](https://github.com/mboehm21/ansible-guac-setup/actions?query=workflow%3ACI)
+[![CI](https://github.com/mboehm21/ansible-guac-setup/actions/workflows/ci.yml/badge.svg)](https://github.com/mboehm21/ansible-guac-setup/actions/workflows/ci.yml)
 
 ## Purpose
 This role demonstrates some key-features of [Ansible](https://www.ansible.com/) to provision a demo-application (clientless remote desktop gateway [Apache Guacamole](https://guacamole.apache.org/)) on a [Docker](https://www.docker.com/)-host.
