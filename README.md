@@ -34,7 +34,7 @@ This role demonstrates some key-features of [Ansible](https://www.ansible.com/) 
 ## Docker-images in use
 | Image                                                                         | Description                                                              |
 |:-----------------------------------------------------------------------------:|--------------------------------------------------------------------------|
-| [guacamole/guacamole](https://hub.docker.com/r/guacamole/guacamole)           | Clientless remote desktop gateway frontend                               |
+| [guacamole/guacamole](https://hub.docker.com/r/guacamole/guacamole)           | Clientless remote desktop gateway web frontend                           |
 | [guacamole/guacd](https://hub.docker.com/r/guacamole/guacd)                   | Clientless remote desktop gateway backend                                |
 | [mysql](https://hub.docker.com/_/mysql)                                       | Relational database for Guacamole                                        |
 | [danielguerra/ubuntu-xrdp](https://hub.docker.com/r/danielguerra/ubuntu-xrdp) | Terminalserver                                                           |
