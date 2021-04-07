@@ -65,11 +65,11 @@ jobs:
           sudo -H pip3 install ansible
           sudo df -hT
 
-      - name: Force GitHub Actions' docker daemon to use vfs.
-        run: |
-          sudo systemctl stop docker
-          echo '{"cgroup-parent":"/actions_job","storage-driver":"vfs"}' | sudo tee /etc/docker/daemon.json
-          sudo systemctl start docker
+#     - name: Force GitHub Actions' docker daemon to use vfs.
+#       run: |
+#         sudo systemctl stop docker
+#         echo '{"cgroup-parent":"/actions_job","storage-driver":"vfs"}' | sudo tee /etc/docker/daemon.json
+#         sudo systemctl start docker
 
       - name: Run playbook.
         run: |
