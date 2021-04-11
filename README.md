@@ -29,7 +29,7 @@ This role demonstrates some key-features of [Ansible](https://www.ansible.com/) 
 |:---------------:|--------------------------------------------------------------------------|
 | `<none>`        | Deploy Guacamole and terminalserver-containers according to configuation |
 | `teardown`      | Destroy Docker-containers and -volumes                                   |
-| `teardown-full` | Destroy Docker-containers, volumes and the created file-struture         |
+| `teardown-full` | Destroy Docker-containers, volumes and the created file-structure        |
 
 ## Docker-images in use
 | Image                                                                         | Description                                                              |
