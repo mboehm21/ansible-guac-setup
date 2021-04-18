@@ -18,7 +18,7 @@ guacadmin_password: changeme
 docker_network_name: guacamole_network
 docker_network_cidr: 10.40.40.0/24
 
-docker_mysql_version: 8.0.22
+docker_mysql_version: 8.0.23
 docker_guacamole_version: 1.3.0
 docker_guacd_version: 1.3.0
 docker_xrdp_version: latest
